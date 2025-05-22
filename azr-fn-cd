@@ -1,0 +1,144 @@
+CONTOH KODE AZURE FUNCTION PYTHON (__init__.py)
+
+import logging
+import json
+import azure.functions as func
+
+def main(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info('Python HTTP trigger function processed a request.')
+
+    try:
+        req_body = req.get_json()
+    except ValueError:
+        logging.error("Request body is not valid JSON.")
+        return func.HttpResponse(
+             "Please pass a valid JSON object in the request body",
+             status_code=400
+        )
+    else:
+        name = req_body.get('name')
+        email = req_body.get('email')
+
+    if name and email:
+        # Di sini Anda bisa melakukan operasi lain, misalnya menyimpan ke database
+        logging.info(f"Received user: {name}, Email: {email}")
+        return func.HttpResponse(
+            json.dumps({
+                "message": f"Hello, {name}! Your email {email} has been received.",
+                "status": "success"
+            }),
+            mimetype="application/json",
+            status_code=200
+        )
+    else:
+        logging.warning("Name or email missing in the request body.")
+        return func.HttpResponse(
+             "Please pass a name and email in the JSON body",
+             status_code=400
+        )
+
+function.json (Contoh konfigurasi binding):
+
+{
+  "scriptFile": "__init__.py",
+  "bindings": [
+    {
+      "authLevel": "function", // Atau "anonymous" atau "admin"
+      "type": "httpTrigger",
+      "direction": "in",
+      "name": "req",
+      "methods": [
+        "post" // Hanya mengizinkan metode POST
+      ]
+    },
+    {
+      "type": "http",
+      "direction": "out",
+      "name": "$return"
+    }
+  ]
+}
+
+
+CONTOH KODE AZURE FUNCTION C# (TimerTriggerCSharp.cs)
+
+using System;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Host;
+using Microsoft.Extensions.Logging;
+
+namespace Company.Function
+{
+    public class TimerTriggerCSharp
+    {
+        [FunctionName("ScheduledTask")]
+        // "0 */5 * * * *" = setiap 5 menit. Lihat dokumentasi CRON expression untuk formatnya.
+        public void Run([TimerTrigger("0 */5 * * * *")]TimerInfo myTimer, ILogger log)
+        {
+            log.LogInformation($"C# Timer trigger function executed at: {DateTime.Now}");
+
+            if (myTimer.IsPastDue)
+            {
+                log.LogInformation("Timer is running late!");
+            }
+
+            // Tambahkan logika tugas terjadwal Anda di sini
+            // Contoh:
+            // CleanUpOldData();
+            // SendSummaryReport();
+
+            log.LogInformation("Scheduled task completed.");
+        }
+    }
+}
+
+CONTOH KODE AZURE FUNCTION JS (QueueTriggerNodeJS/index.js)
+
+module.exports = async function (context, myQueueItem) {
+    context.log('JavaScript queue trigger function processed work item:', myQueueItem);
+
+    // myQueueItem adalah isi dari pesan di queue
+    // Biasanya berupa string atau JSON string yang perlu di-parse
+
+    try {
+        const orderDetails = (typeof myQueueItem === 'string') ? JSON.parse(myQueueItem) : myQueueItem;
+
+        context.log('Order ID:', orderDetails.orderId);
+        context.log('Product:', orderDetails.product);
+        context.log('Quantity:', orderDetails.quantity);
+
+        // Logika pemrosesan pesanan Anda di sini
+        // Contoh: Simpan ke database, panggil API lain, dll.
+
+        // Jika ada output binding (mis. ke tabel lain atau queue lain), Anda bisa set di sini:
+        // context.bindings.outputQueueItem = "Processed: " + orderDetails.orderId;
+
+    } catch (error) {
+        context.log.error('Error processing queue item:', error);
+        // Pertimbangkan untuk menangani error, misalnya mengirim pesan ke dead-letter queue
+        throw error; // Melempar error akan menyebabkan fungsi mencoba memproses pesan lagi (tergantung konfigurasi retry)
+    }
+};
+
+QueueTriggerNodeJS/function.json (Contoh konfigurasi binding):
+
+{
+  "bindings": [
+    {
+      "name": "myQueueItem",
+      "type": "queueTrigger",
+      "direction": "in",
+      "queueName": "my-processing-queue", // Nama queue yang dimonitor
+      "connection": "AzureWebJobsStorage" // Nama setting aplikasi yang berisi connection string ke Storage Account
+    }
+    // Contoh output binding ke queue lain:
+    // {
+    //   "name": "outputQueueItem",
+    //   "type": "queue",
+    //   "direction": "out",
+    //   "queueName": "processed-items-queue",
+    //   "connection": "AzureWebJobsStorage"
+    // }
+  ],
+  "scriptFile": "index.js"
+}
