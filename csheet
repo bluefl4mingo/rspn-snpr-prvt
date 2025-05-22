@@ -1,0 +1,302 @@
+--ESSENTIAL GIT COMMANDS--
+•	git clone <repository-link >
+•	git branch <branch-name>
+•	git push -u <remote> <branch-name>
+•	git checkout <name-of-your-branch>
+•	git checkout -b <name-of-your-branch>
+•	git commit -m "commit message"
+•	git push <remote> <branch-name>
+•	git push -u origin <branch_name>
+
+--GITHUB ACTION—
+1. Fork repository yang akan digunakan
+2. Masuk ke bagian Setting, kemudian klik Secrets and Variables. Pilih menu Actions
+3. Buat Secret baru dengan mengklik “New repository secret”. Terdapat 4 secret yang perlu dibuat, yaitu HOST, PORT, USERNAME, dan PASSWORD
+4. Clone repository hasil fork pada komputer lab. Pastikan telah login ke Github
+Jika Clone Gagal
+a) Buka Git Bash 
+b) Jalankan perintah berikut 
+cd ~ 
+ssh-keygen -t ed25519 -f “~/.ssh/ssh-<<NIU>>” 
+# 
+akan muncul prompt untuk memasukkan password. Isi sesuai kebutuhan dapat dikosongi 
+cat ~/.ssh/ssh-<<NIU>>.pub 
+c) Copy keluaran dari perintah terakhir. Buka Github. Login ke akun yang digunakan untuk fork repository. Masuk ke Setting →SSH and GPG Keys. Klik “New SSH”. Isi “Title”. Pada bagian ‘Key’, paste hasil copy key tadi. 
+d) Jalankan perintah berikut 
+eval “$(ssh-agent -s)” 
+ssh-add ~/.ssh/ssh-<<NIU>> 
+e) Clone ulang repository hasil fork menggunakan pilihan SSH
+5. Pada root folder hasil clone, buat folder baru “.github”. Perhatikan titik diawal nama folder
+6. Masuk ke folder “.github”, buat folder “workflows”
+7. Masuk ke folder “workflows”, buat file baru dengan nama “main.yml”
+Case 2: Jobs untuk Terhubung ke VM
+8. Buka Github. Login ke akun yang digunakan untuk fork repository. Masuk ke Setting →SSH and GPG Keys. Klik “New SSH”. Pada Title dan Key isikan nilai
+9. Kembali ke Visual Studio Code. Lengkapi file “main.yml”
+10. Pastikan Github Action berjalan dan sukses
+11. Buka Git Bash. Jalankan perintah di bawah 
+ssh <<USERNAME>>@<<HOST>> 
+cd ~/senpro/<<NIU>>/modul02/<<Nama repository hasil fork>> 
+cat src/pages/index.js
+
+--MEMBUAT SSH--
+a. Buka Git Bash 
+b. Masukkan perintah berikut cd ~/.ssh
+Jika folder .ssh tidak ada mkdir ~/.ssh
+c. Untuk membuat kunci pasangan SSH, masukkan perintah ssh-keygen -m PEM -t rsa -b 4096
+d. Dapatkan kunci publik dari SSH yang baru saja dibuat dengan cat ssh-modul4.pub
+
+--MEMBUAT VM AZURE--
+1. Masuk ke portal.azure.com
+2. Pilih “Virtual Machine” dari pilihan resource yang tersedia
+3. Setelah mengeklik “Create”, akan diarahkan ke halaman pembuatan sumber daya. Isi field yang dibutuhkan
+4. Pada bagian Resource Group, pilih resource yang tersedia atau yang telah dibuat sebelumnya. Jika tidak ada klik “Create new”
+5. Pada “Authentication type” pilih SSH public key. SSH adalah cara yang lebih aman untuk terhubung ke suatu mesin remote
+6. Copy kunci publik yang sudah dibuat sebelumnya melalui Git Bash, kemudian paste ke kolom “SSH public key”
+7. Klik tab “Networking”, maka akan muncul konfigurasi VM yang berkaitan dengan Jaringan
+8. Pada “Virtual Network”, klik “Create new”. Akan muncul sidebar pada sisi kanan, isi field “Name” dan pilih nilai Address Space dan Subnet default yang diberikan oleh Azure. Kemudian klik “Ok”
+9. Pada field “Public IP”, klik “Create new”. Akan muncul sidebar pada sisi kanan, kemudian isi field “Name” dengan nilai yang dikehendaki. Untuk field lain gunakan nilai default, tidak perlu diganti. Klik “Ok”
+10. Untuk field yang lain, gunakan nilai default yang diberikan oleh Azure
+10. NIC network security group: Basic, Public inbound ports: Allow selected, Select inbound ports: SSH(22)
+11. Tunggu hingga proses pembuatan VM selesai
+
+
+--CONNECT KE VM AZURE LEWAT SSH--
+1. Untuk dapat terhubung dengan VM yang baru saja dibuat, buka SSH Client. Pada modul ini 
+SSH client yang digunakan adalah Git Bash
+2. Masukan command berikut pada Git Bash, ganti IP dengan IP publik dari VM yang baru saja dibuat. Pastikan kunci SSH yang digunakan adalah kunci private, ditandai dengan tidak adanya ekstensi .pub
+ssh -i ~/.ssh/<<NAMA_SSH_KEY>> <<USERNAME>>@<<IP_PUBLIK_VM>>
+3. Masukan “yes” saat terdapat prompt mengenai fingerprint. Isi password VM saat diminta
+
+
+-- MEMBUAT ISOLATED INTERNAL VM --
+Untuk membuat Isolated Internal VM, ulangi langkah pembuatan VM sebelumnya dengan perubahan sebagai berikut:
+1. Pada tab “Basics”, ubah field “Authentication type” menjadi “Password”
+2. Pada tab “Networking, pada field “Virtual Network” pilih Virtual Network yang sama dengan Virtual Network yang digunakan oleh VM sebelumnya. Hal tersebut juga berlaku untuk field 
+“Subnet”
+4. Pada field “Public IP”, pilih isian “None”. Untuk field lain, gunakan nilai default
+5. Klik “Create + review” untuk membuat VM
+
+-- MEMBUAT FUNCTION APPS--
+1. Untuk membuat resource function app, klik create resource lalu cari function app melalui search bar, kemudian pilih create function app
+2. Akan muncul pilihan untuk memilih opsi hosting, pilih opsi Consumption dan klik select
+3. Setelah itu pilih resource group yang akan digunakan dengan create new apabila sebelumnya belum pernah membuat resource group
+4. Cek kembali detail-detail mengenai FuntionApp yang akan di-create. Pastikan bahwa FunctionApp yang dibuat sudah sesuai dengan spesifikasi yang diperlukan
+5. Setelah sumberdaya berhasil dibuat, silahkan masuk ke resource yang dibuat. Karena Function Apps baru saja dibuat dan tidak memiliki function yang berjalan, silahkan buat functions baru dengan klik tombol create function
+6. Setelah mengklik tombol create, akan muncul jendela untuk membuat function. Untuk percobaan ini akan membuat HTTP trigger sederhana. Pilih template HTTP trigger untuk menggunakan template dan klik create
+7. Untuk mencoba apakah fungsi ini dapat berjalan, dapat menggunakan tombol Test/Run atau menggunakan Get Function URL
+
+-- MEMBUAT API QUERIES DI FUNCTION APPS--
+1. Buka Function App yang baru saja Anda buat di Azure Portal. 
+2. Di menu sebelah kiri, di bawah "Functions", klik "Functions". 
+3. Klik "+ Create". 
+4. Pilih templat pengembangan: 
+Development environment: Anda bisa memilih "Develop in portal" untuk memulai dengan cepat, atau menggunakan IDE lokal Anda (seperti VS Code) dan kemudian mendeploy. Untuk contoh ini, mari kita asumsikan "Develop in portal" atau pengembangan lokal yang kemudian di-deploy.
+Select a template: Pilih "HTTP trigger".
+5. Isi detail fungsi: 
+New Function: Beri nama fungsi Anda (misalnya, GetUser, CreateProduct).
+Authorization level: 
+Function: Memerlukan kunci API khusus fungsi.
+Admin: Memerlukan kunci master.
+Anonymous: Tidak memerlukan otentikasi (hati-hati dengan ini untuk API publik). Biasanya, "Function" adalah pilihan yang baik untuk memulai API yang aman.
+6. Klik "Create"
+CONTOH KODE SEDERHANA Node.js
+
+module.exports = async function (context, req) {
+    context.log('JavaScript HTTP trigger function processed a request.');
+
+    const name = (req.query.name || (req.body && req.body.name));
+    const responseMessage = name
+        ? "Hello, " + name + ". This HTTP triggered function executed successfully."
+        : "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.";
+
+    // Di sini Anda akan menambahkan logika untuk query ke database atau layanan lain
+    // Misalnya, jika Anda ingin mengambil data berdasarkan 'id' dari query string:
+    // const id = req.query.id;
+    // if (id) {
+    //     // const data = await queryYourDatabase(id); // Fungsi imajiner
+    //     // context.res = { body: data };
+    // } else {
+    //     context.res = {
+    //         status: 200, /* Defaults to 200 */
+    //         body: responseMessage
+    //     };
+    // }
+
+    context.res = {
+        // status: 200, /* Defaults to 200 */
+        body: responseMessage
+    };
+}
+
+CONTOH KODE SEDERHANA C#
+
+using System.IO;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Azure.WebJobs;
+using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+
+public static class GetUser
+{
+    [FunctionName("GetUser")]
+    public static async Task<IActionResult> Run(
+        [HttpTrigger(AuthorizationLevel.Function, "get", "post", Route = null)] HttpRequest req,
+        ILogger log)
+    {
+        log.LogInformation("C# HTTP trigger function processed a request.");
+
+        string name = req.Query["name"];
+
+        string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
+        dynamic data = JsonConvert.DeserializeObject(requestBody);
+        name = name ?? data?.name;
+
+        // Di sini Anda akan menambahkan logika untuk query ke database atau layanan lain
+        // Misalnya, jika Anda ingin mengambil data berdasarkan 'id' dari query string:
+        // string id = req.Query["id"];
+        // if (!string.IsNullOrEmpty(id)) {
+        //     // var result = await QueryYourDatabaseAsync(id); // Fungsi imajiner
+        //     // return new OkObjectResult(result);
+        // }
+
+        string responseMessage = string.IsNullOrEmpty(name)
+            ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
+            : $"Hello, {name}. This HTTP triggered function executed successfully.";
+
+        return new OkObjectResult(responseMessage);
+    }
+}
+
+-- MEMBUAT VIRTUAL NETWORKS--
+1. Cari layanan Virtual Network. Kemudian “Create”
+2. Pada laman pembuatan virtual network, isi nama dari virtual network dan resource group di mana virtual network akan berjalan
+3. Masuk pada tab menu “IP Addresses”. Perlu dipahami bahwa virtual network merupakan lingkungan jaringan terisolasi. IP yang digunakan disini tidak terhubung ke jaringan public (IP Private). Virtual network (VNet) akan dapat terkoneksi dari luar ketika layanan ditautkan (bind) dengan IP Publik atau layanan BastionHost dinyalakan. Isi nama subnet dengan nama Subnet-tier{idx} dan address space sesuai dengan gambar berikut
+ 
+4. Lanjut ke Review+Create. Pastikan pengaturan dari VNet telah sesuai dan klik create
+
+-- LOAD BALANCING--
+Load balancing merupakan upaya untuk membagi beban kerja kepada sumber daya dengan kebijakan tertentu. Tujuan dari load balancing agar layanan dapat berjalan dengan baik dalam batasan kapasitas yang dimiliki. Load balancing dapat digunakan baik untuk jaringan public (Public LB) maupun jaringan internal (Private LB) sesuai dengan kebutuhan dari arsitektur yang digunakan. Untuk load balancing di modul ini akan menggunakan load balancing yang disediakan langsung oleh Azure
+
+1. Cari layanan load balancer, kemudian klik “Create”
+2. Setelah masuk ke laman pembuatan load balancer, isikan konfigurasi yang diperlukan. Pada lab ini akan menggunakan load balancer publik dengan SKU Basic. Untuk isian resource group pilih 
+tempat resource group yang ingin digunakan
+ 
+3. Kemudian masuk ke tab menu “Frontend IP Configuration”. Klik tombol “Add a frontend IP 
+configuration” dan akan muncul jendela pilihan untuk menambahkan alamat IP frontend. Untuk 
+kali ini akan menggunakan IPv4 dengan alokasi statik. Isikan nama dari frontend yang akan digunakan serta memilih IP publik yang akan digunakan. Karena belum ada IP publik yang  dimiliki, maka di bawah dropdown menu “Public IP Address” klik “Create new” dan isikan nama  dari alamat IP yang akan digunakan. Pastikan “Assignment” yang digunakan “Static” agar IP  yang digunakan tetap sama dari waktu kewaktu. Jika telah selesai maka dapat langsung menuju laman Review+Create
+4. Pastikan pengaturan peluncuran load balancer telah sesuai dengan keinginan. Kemudian klik 
+“Create”
+
+-- MENGHUBUNGKAN LAYANAN DENGAN LOAD BALANCER--
+1. Akses Azure Cloud Shell yang terdapat pada menubar Azure Portal
+2. Azure Cloud Shell akan muncul pada bagian bawah, pilih “Bash”
+3. Jika muncul “You have no storage mounted”, pilih “Show advanced settings” dan masukkan nama resource group sesuai dengan ketentuan
+4. Setelah Azure Cloud Shell berhasil dijalankan, maka akan muncul tampilan
+5. Masukkan script yang dari file yang telah disediakan. Pastikan untuk menyesuaikan parameter. Tekan “Enter” untuk mengeksekusi script
+
+group=<isikan nama resource grup yang digunakan>
+vnet_name=<isikan dengan nama vnet yang anda buat>
+vnet_subnet=<isikan dengan nama subnet yang ada di vnet>
+location_res=<isikan dengan lokasi vnet yang dibuat>
+nama=<isikan dengan nama anda>
+
+username=adminuser
+password='SecretPassword123!@#'
+  
+az vm availability-set create \
+  -n ${nama}-vm-as -l $location_res\
+  -g $group
+
+for NUM in 1 2 3
+do
+  az vm create -l $location_res \
+    -n ${nama}${NUM} \
+    -g $group \
+    --size Standard_B1s \
+    --image Win2019Datacenter \
+    --admin-username $username \
+    --admin-password $password \
+    --vnet-name $vnet_name \
+    --subnet ${vnet_subnet}${NUM} \
+    --public-ip-address "" \
+    --availability-set ${nama}-vm-as \
+	  --nsg vm-nsg-${nama}
+done
+
+for NUM in 1 2 3
+do
+  az vm open-port -g $group --name ${nama}${NUM} --port 80
+done
+
+for NUM in 1 2 3
+do
+  az vm extension set \
+    --name CustomScriptExtension \
+    --vm-name ${nama}${NUM} \
+    -g $group \
+    --publisher Microsoft.Compute \
+    --version 1.8 \
+    --settings '{"commandToExecute":"powershell Add-WindowsFeature Web-Server; powershell Add-Content -Path \"C:\\inetpub\\wwwroot\\Default.htm\" -Value $($env:computername)"}'
+done
+
+6. Ketika eksekusi script berhasil. Maka, akan muncul 3 virtual machine pada resource group yang dipilih
+7. Setelah VM yang akan digunakan telah berjalan lancar. Buka resource load balancer yang telah dibuat di lab sebelumnya
+8. Kemudian pilih menu backend pool. Setelah itu klik tombol “Add”
+9. Setelah muncul menu pembuatan “Backend Pool”. Isi field virtual network dengan virtual network yang telah dibuat sebelumnya
+10. Kemudian, pada “IP Configurations”, klik tombol “Add”. Pilih tiga virtual machine yang telah dibuat melalui script. Klik “Add” untuk menyimpan pilihan virtual machine
+11. Setelah semua konfigurasi backend pool selesai, klik “Save”
+12. Lanjutkan dengan membuat health probe yang berfungsi untuk mengecek status layanan. Pilih menu “Health Probes” dan klik “Add”
+13. Isi bagian yang wajib sesuai dengan gambar berikut. Nama probe dapat diisi bebas
+14. Langkah terakhir yaitu membuat “Load Balancing Rule”. Klik menu “Load Balancing Rule” dan klik tombol “Add”
+15. Isikan “Port” dan “Backend port” sesuai dengan gambar. Untuk Frontend IP address, backend pool, dan health probe pilih sesuai dengan sumber daya yang dibuat sebelumnya. Klik “Save” 
+16. Untuk dapat mengecek apakah layanan telah terhubung dengan benar. Cari Frontend IP Address yang ditautkan di laman sumber daya load balancer yang digunakan. Gunakan IP yang tertaut untuk dapat terhubung ke layanan melalui load balancer
+17. Untuk dapat melakukan koneksi RDP, load balancer harus memiliki aturan NAT masuk yang diatur untuk RDP. Membuat aturan masuk pada load balancer dapat ditemui di menu “Inbound NAT rules” dan klik tombol “Add”. Isikan layanan seperti pada gambar untuk dapat terhubung ke VM yang sesuai
+ 
+--BASIC INFORMATIONS BUAT JAWAB SOAL--
+A) SSH key memiliki fungsi utama sebagai metode autentikasi yang aman untuk mengakses server atau perangkat melalui SSH. Kunci ini berfungsi seperti nama pengguna dan kata sandi, tetapi dengan tingkat keamanan yang lebih tinggi dan tanpa memerlukan pengguna untuk mengetikkan password secara manual
+B) Perbedaan utama antara public key dan private key dalam SSH adalah pada penggunaannya. Private key digunakan untuk mengautentikasi dan membuat koneksi ke server, sementara public key digunakan oleh server untuk memverifikasi identitas pengguna
+C) Jika virtual machine ingin diakses dari komputer lain, bisa menggunakan akses SSH, salah satunya adalah rsa-key
+D) HTTP adalah protokol untuk mengakses informasi di web, sementara SSH adalah protokol untuk mengelola dan berinteraksi dengan sistem komputer dari jarak jauh secara aman. Port SSH terletak pada 22 sedangkan HTTP pada 80
+E) Ketika membuat sebuah Virtual Machine (VM) di Azure, sifat akses defaultnya cenderung mengarah pada private, tetapi dengan kemampuan untuk menambahkan akses public jika diperlukan. Secara default, ketika Anda membuat VM di Azure, VM tersebut ditempatkan di dalam sebuah Virtual Network (VNet) dan subnet. VNet ini adalah jaringan yang terisolasi secara logis di Azure. VM di dalam VNet akan mendapatkan Private IP Address. Jika Anda ingin VM dapat diakses dari internet, Anda perlu secara eksplisit menambahkan Public IP Address ke VM tersebut
+F) GET digunakan untuk meminta atau mengambil data dari server, di mana informasi dikirimkan melalui URL
+G) POST digunakan untuk mengirimkan data ke server untuk diproses atau disimpan, di mana informasi dikirimkan dalam body permintaan
+H) Azure Virtual Network (VNet) adalah fondasi jaringan privat Anda di Azure, yang memungkinkan Anda membuat lingkungan jaringan yang terisolasi secara logis di mana Anda dapat meluncurkan sumber daya Azure seperti Virtual Machines (VM), Azure Kubernetes Service (AKS), dan layanan lainnya untuk berkomunikasi satu sama lain dengan aman, ke internet, atau bahkan ke jaringan on-premises melalui koneksi hibrida
+I) Azure NAT Gateway adalah layanan Network Address Translation (NAT) terkelola penuh yang menyediakan konektivitas internet keluar (outbound) yang sangat andal dan aman untuk sumber daya di dalam subnet Virtual Network, tanpa perlu menetapkan Public IP langsung ke setiap VM, sehingga menjaga sumber daya internal tetap privat dan mencegah koneksi masuk yang tidak diminta dari internet
+J) Azure Load Balancing adalah layanan Layer 4 (TCP/UDP) yang mendistribusikan lalu lintas jaringan masuk secara efisien ke beberapa sumber daya backend (misalnya, VM atau skala set VM) untuk memastikan aplikasi Anda berkinerja tinggi, tersedia secara optimal, dan toleran terhadap kegagalan dengan mengarahkan lalu lintas hanya ke server yang sehat
+K) Fungsi utama dari health probe pada Azure Load Balancer adalah untuk secara terus-menerus memantau kesehatan dan ketersediaan dari setiap instans backend (misalnya, Virtual Machine) di dalam backend pool. Dengan secara berkala mengirimkan permintaan (berdasarkan protokol seperti TCP, HTTP, atau HTTPS) ke setiap instans, load balancer dapat menentukan apakah instans tersebut responsif dan berfungsi dengan baik
+L) Gunakan IP Public load balancer untuk mengakses VM
+M) Load balaner bersifat public jika diakses melalui IP, dan bersifat internal saat load balancer berkomunikasi dengan VM
+N) Load Balancer berfokus pada distribusi lalu lintas masuk (inbound) secara efisien ke banyak sumber daya backend untuk memastikan ketersediaan dan kinerja aplikasi, sekaligus dapat menyediakan konektivitas keluar. Sementara itu, NAT Gateway secara khusus dirancang untuk menyediakan konektivitas keluar (outbound) yang aman dan terukur untuk semua sumber daya di dalam subnet, menyembunyikan alamat IP privat internal dan mencegah koneksi masuk yang tidak diminta, menjadikannya pilihan yang lebih modern dan aman untuk skenario outbound dibandingkan dengan aturan outbound pada Load Balancer 
+
+
+-- CARA TERHUBUNG KE VM DENGAN SSH--
+Menggunakan SSH Keys (Sangat Direkomendasikan)
+Ini adalah metode yang paling aman dan direkomendasikan. Anda akan memiliki pasangan kunci:
+Public Key: Disimpan di VM Azure Anda saat VM dibuat.
+Private Key: Disimpan di komputer lokal Anda dan harus dilindungi (tidak dibagikan).
+Langkah-langkah:
+1.	Buat Pasangan Kunci SSH (jika belum ada):
++Buka terminal (Linux/macOS) atau PowerShell/Git Bash (Windows).
++Jalankan perintah: ssh-keygen -t rsa -b 4096 (Anda bisa memilih algoritma lain seperti ed25519 yang lebih modern).
++Ikuti petunjuk untuk menyimpan kunci (biasanya di ~/.ssh/id_rsa untuk private key dan ~/.ssh/id_rsa.pub untuk public key) dan tetapkan passphrase (opsional, tetapi sangat direkomendasikan).
++Penting: Jika Anda menggunakan kunci yang sudah ada, pastikan private key Anda memiliki izin yang benar (hanya bisa dibaca oleh pemilik): chmod 400 ~/.ssh/id_rsa (untuk Linux/macOS).
+2.	Sertakan Public Key saat Membuat VM di Azure:
++Saat Anda membuat VM Linux di Azure Portal, di bagian "Administrator account", pilih "SSH public key" sebagai "Authentication type".
++Salin isi file public key Anda (~/.ssh/id_rsa.pub) dan tempelkan ke kolom yang tersedia.
+3.	Dapatkan Detail Koneksi VM Anda:
++Setelah VM Anda dibuat, navigasikan ke halaman VM di Azure Portal.
++Pilih "Connect" dari menu kiri.
++Pilih tab "SSH". Anda akan melihat perintah SSH lengkap yang perlu Anda gunakan. Contohnya: ssh -i /path/to/your/private_key.pem username@public_ip_address
+4.	Terhubung Melalui SSH:
++Buka terminal (Linux/macOS) atau PowerShell/Command Prompt (Windows).
++Jalankan perintah SSH yang Anda dapatkan dari portal Azure. 
++Ganti /path/to/your/private_key.pem dengan jalur sebenarnya ke file private key Anda (misalnya: ~/.ssh/id_rsa).
++Ganti username dengan nama pengguna yang Anda buat untuk VM (misalnya: azureuser).
++Ganti public_ip_address dengan Public IP Address dari VM Anda.
++Contoh: ssh -i ~/.ssh/id_rsa azureuser@20.x.x.x
++Jika ini adalah koneksi pertama ke VM tersebut, Anda mungkin akan diminta untuk memverifikasi fingerprint host. Ketik yes dan tekan Enter.
++Jika Anda menetapkan passphrase untuk private key Anda, Anda akan diminta untuk memasukkannya.
+
